@@ -10,6 +10,7 @@ import { clearUserAnswers, initialize } from "@/reducers/quizReducer.js";
 import QuizContext from "@/contexts/QuizContext.jsx";
 import Initial from "@/pages/Quiz/Initial.jsx";
 import { useNavigate } from "react-router-dom";
+import Container from "@/components/Container.jsx";
 
 const App = () => {
   const quiz = useLocalStorage("quiz");
@@ -18,20 +19,23 @@ const App = () => {
   const [isStarted, setIsStarted] = useState(false);
   const navigate = useNavigate();
   const timeLeft = useLocalStorage("timeLeft");
+  const [difficulty, setDifficulty] = useState("easy");
 
-  const quizQueryResult = useQuizQuery(!quiz);
+  const quizQueryResult = useQuizQuery(!quiz, difficulty);
 
   const handleStart = () => {
     setIsStarted(true);
     clearUserAnswers(state, dispatch);
+    quizQueryResult.refetch();
+    window.localStorage.removeItem("quiz");
     navigate("/quiz");
   };
 
   useEffect(() => {
-    if (timeLeft) setIsStarted(true);
     if (user && quiz) {
-      // setIsStarted(false);
+      if (timeLeft) setIsStarted(true);
       if (user.currentQuestionIndex === quiz.length - 1) {
+        setIsStarted(false);
         window.localStorage.setItem(
           "user",
           JSON.stringify({ ...user, currentQuestionIndex: 0, userAnswers: [] }),
@@ -78,6 +82,19 @@ const App = () => {
     }
   }, [quizQueryResult.data]);
 
+  if (quizQueryResult.isLoading) {
+    return <Container>Loading...</Container>;
+  }
+
+  if (quizQueryResult.isError) {
+    return (
+      <Container>
+        <div>Error:</div>
+        <div style={{ marginTop: "12px" }}>{quizQueryResult.error.message}</div>
+      </Container>
+    );
+  }
+
   return (
     <Routes>
       <Route path="/" element={<Login />} />
@@ -87,7 +104,13 @@ const App = () => {
       />
       <Route
         path="/initial"
-        element={<Initial handleStart={handleStart} isStarted={isStarted} />}
+        element={
+          <Initial
+            handleStart={handleStart}
+            isStarted={isStarted}
+            setDifficulty={setDifficulty}
+          />
+        }
       />
       <Route path="/result" element={<Result />} />
     </Routes>

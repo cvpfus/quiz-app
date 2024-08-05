@@ -1,9 +1,12 @@
 import Container from "@/components/Container.jsx";
 import Button from "@/components/Button.jsx";
 import { useNavigate } from "react-router-dom";
+import { DIFFICULTIES } from "@/constants/index.js";
+import { useState } from "react";
 
-const Initial = ({ handleStart, isStarted }) => {
+const Initial = ({ handleStart, isStarted, setDifficulty }) => {
   const navigate = useNavigate();
+  const [difficultyIndex, setDifficultyIndex] = useState(null);
   const handleResume = () => {
     navigate("/quiz");
   };
@@ -16,12 +19,54 @@ const Initial = ({ handleStart, isStarted }) => {
       </Container>
     );
   }
+
+  const handleDifficulty = (i) => {
+    setDifficultyIndex(i);
+    setDifficulty(DIFFICULTIES[i]);
+  };
+
+  const defaultStyle = { backgroundColor: "white", border: "2px solid black" };
+  const selectedStyle = {
+    backgroundColor: "var(--secondary)",
+    border: "2px solid var(--secondary)",
+    color: "white",
+  };
+
   return (
-    <Container>
-      <div>Quiz Rules (TODO)</div>
-      <div>1. aaaaaaa</div>
-      <div>2. bbbbbbb</div>
-      <div>3. ccccccc</div>
+    <Container style={{ justifyContent: "start", paddingTop: "48px" }}>
+      <h3 style={{ marginBottom: "24px" }}>About this Quiz</h3>
+      <div>
+        <div>1. Time limit is 2 minutes.</div>
+        <div>2. This quiz is a multiple choice quiz.</div>
+        <div>3. There are 10 random questions (not categorized).</div>
+        <div>4. Before you begin, select the difficulty below.</div>
+      </div>
+
+      <h3 style={{ marginTop: "24px", marginBottom: "12px" }}>Difficulty</h3>
+      <div style={{ display: "flex", gap: "12px" }}>
+        {DIFFICULTIES.map((difficulty, i) => {
+          return (
+            <Button
+              style={difficultyIndex === i ? selectedStyle : defaultStyle}
+              key={i}
+              onClick={() => handleDifficulty(i)}
+            >
+              {difficulty}
+            </Button>
+          );
+        })}
+
+        {/*<Button style={{ backgroundColor: "white", border: "2px solid black" }}>*/}
+        {/*  Easy*/}
+        {/*</Button>*/}
+        {/*<Button style={{ backgroundColor: "white", border: "2px solid black" }}>*/}
+        {/*  Easy*/}
+        {/*</Button>*/}
+        {/*<Button style={{ backgroundColor: "white", border: "2px solid black" }}>*/}
+        {/*  Easy*/}
+        {/*</Button>*/}
+      </div>
+
       <Button style={{ marginTop: "24px" }} onClick={handleStart}>
         Start
       </Button>

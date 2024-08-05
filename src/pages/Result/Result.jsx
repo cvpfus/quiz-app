@@ -1,8 +1,6 @@
 import Container from "@/components/Container.jsx";
 import { useLocalStorage } from "@/hooks/useLocalStorage.js";
 import styled from "styled-components";
-import { useEffect } from "react";
-import { clearUserAnswers } from "@/reducers/quizReducer.js";
 
 const Table = styled.table`
   margin-top: 24px;

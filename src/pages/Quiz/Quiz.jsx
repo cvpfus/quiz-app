@@ -1,4 +1,3 @@
-import Initial from "@/pages/Quiz/Initial.jsx";
 import { useContext, useEffect, useState } from "react";
 import Container from "@/components/Container.jsx";
 import styled from "styled-components";
@@ -9,8 +8,9 @@ import {
   setCurrentQuestionIdx,
   setUserAnswers,
 } from "@/reducers/quizReducer.js";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { getReadableTimeFormat } from "@/utils/getReadableTimeFormat.js";
+import { INITIAL_TIMER } from "@/constants/index.js";
 
 const BaseQuizInfo = styled.span`
   background-color: var(--secondary);
@@ -52,7 +52,7 @@ const Answer = styled.button`
   font-size: 16px;
   font-weight: bold;
   &:hover {
-    opacity: 0.8;
+    opacity: 0.9;
   }
 `;
 
@@ -67,11 +67,11 @@ const Quiz = ({ isStarted, setIsStarted }) => {
   const user = useLocalStorage("user");
   const timeLeft = useLocalStorage("timeLeft");
   const [state, dispatch] = useContext(QuizContext);
-  const navigate = useNavigate();
+  const [correctAnswerIndex, setCorrectAnswerIndex] = useState(null);
 
   const [seconds, setSeconds] = useState(() => {
     if (timeLeft) return timeLeft;
-    else return 240;
+    else return INITIAL_TIMER;
   });
 
   useEffect(() => {
@@ -87,26 +87,27 @@ const Quiz = ({ isStarted, setIsStarted }) => {
     }
   }, [seconds]);
 
-  if (seconds === 0) {
-    setIsStarted(false);
-    return <Navigate to="/result" />;
-  }
-
   if (!quiz) return <Container>Loading...</Container>;
 
   const maxQuestionIndex = quiz.length - 1;
   const currentQuestionIndex = state.currentQuestionIndex;
 
+  if (seconds === 0 || currentQuestionIndex - 1 === maxQuestionIndex) {
+    return <Navigate to="/result" />;
+  }
+
   const decodedQuestion = decodeQuestion(quiz[currentQuestionIndex].question);
 
-  const handleAnswer = (i) => {
-    setCurrentQuestionIdx(state, dispatch, state.userAnswers.length + 1);
-    setUserAnswers(state, dispatch, i);
-
-    if (currentQuestionIndex === maxQuestionIndex) {
-      navigate("/result");
-      setIsStarted(false);
-    }
+  const handleAnswer = (e, i) => {
+    if (quiz[currentQuestionIndex].answer_index !== i)
+      e.target.style.backgroundColor = "red";
+    setCorrectAnswerIndex(quiz[currentQuestionIndex].answer_index);
+    setTimeout(() => {
+      e.target.style.backgroundColor = "var(--secondary)";
+      setCurrentQuestionIdx(state, dispatch, state.userAnswers.length + 1);
+      setUserAnswers(state, dispatch, i);
+      setCorrectAnswerIndex(null);
+    }, 2000);
   };
 
   if (!isStarted) return <Navigate to="/initial" />;
@@ -119,7 +120,14 @@ const Quiz = ({ isStarted, setIsStarted }) => {
       <AnswersContainer>
         {quiz[currentQuestionIndex].all_answers.map((item, i) => {
           return (
-            <Answer onClick={() => handleAnswer(i)} key={i}>
+            <Answer
+              style={{
+                backgroundColor:
+                  correctAnswerIndex === i ? "green" : "var(--secondary)",
+              }}
+              onClick={(e) => handleAnswer(e, i)}
+              key={i}
+            >
               {item}
             </Answer>
           );

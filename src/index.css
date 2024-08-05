@@ -1,6 +1,7 @@
 :root {
   --primary: #FFC700;
-  --secondary: #EE4E4E;
+  /*--secondary: #EE4E4E;*/
+  --secondary: #FF8343;
 }
 
 * {

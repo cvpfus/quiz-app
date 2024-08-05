@@ -1,10 +1,9 @@
 import axios from "axios";
 
-const baseUrl =
-  "https://opentdb.com/api.php?amount=10&category=18&difficulty=easy&type=multiple";
+const baseUrl = "https://opentdb.com/api.php?type=multiple&amount=10";
 
-const getAll = async () => {
-  const response = await axios.get(baseUrl);
+const getAll = async (difficulty) => {
+  const response = await axios.get(`${baseUrl}&difficulty=${difficulty}`);
 
   return response.data.results;
 };
