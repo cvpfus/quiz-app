@@ -1,8 +1,16 @@
 import Initial from "@/pages/Quiz/Initial.jsx";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Container from "@/components/Container.jsx";
 import styled from "styled-components";
 import { useLocalStorage } from "@/hooks/useLocalStorage.js";
+import QuizContext from "@/contexts/QuizContext.jsx";
+import {
+  clearUserAnswers,
+  setCurrentQuestionIdx,
+  setUserAnswers,
+} from "@/reducers/quizReducer.js";
+import { Navigate, useNavigate } from "react-router-dom";
+import { getReadableTimeFormat } from "@/utils/getReadableTimeFormat.js";
 
 const BaseQuizInfo = styled.span`
   background-color: var(--secondary);
@@ -24,8 +32,9 @@ const TotalAnswered = styled(BaseQuizInfo)`
 `;
 
 const Question = styled.h2`
+  margin: 72px 0;
   padding: 0 24px;
-  margin-bottom: 72px;
+  text-align: center;
 `;
 
 const AnswersContainer = styled.div`
@@ -47,33 +56,74 @@ const Answer = styled.button`
   }
 `;
 
-const Quiz = () => {
-  const [isStarted, setIsStarted] = useState(false);
+const decodeQuestion = (text) => {
+  const parser = new DOMParser();
+  return parser.parseFromString(`<!doctype html><body>${text}`, "text/html")
+    .body.textContent;
+};
+
+const Quiz = ({ isStarted, setIsStarted }) => {
   const quiz = useLocalStorage("quiz");
-  const [index, setIndex] = useState(0);
+  const user = useLocalStorage("user");
+  const timeLeft = useLocalStorage("timeLeft");
+  const [state, dispatch] = useContext(QuizContext);
+  const navigate = useNavigate();
 
-  if (!quiz) return <div>Loading...</div>;
+  const [seconds, setSeconds] = useState(() => {
+    if (timeLeft) return timeLeft;
+    else return 240;
+  });
 
-  const handleStart = () => {
-    setIsStarted(true);
+  useEffect(() => {
+    if (seconds > 0) {
+      const timerId = setInterval(() => {
+        window.localStorage.setItem("timeLeft", JSON.stringify(seconds - 1));
+        setSeconds((prevSeconds) => prevSeconds - 1);
+      }, 1000);
+      return () => clearInterval(timerId);
+    } else {
+      window.localStorage.removeItem("timeLeft");
+      clearUserAnswers(state, dispatch);
+    }
+  }, [seconds]);
+
+  if (seconds === 0) {
+    setIsStarted(false);
+    return <Navigate to="/result" />;
+  }
+
+  if (!quiz) return <Container>Loading...</Container>;
+
+  const maxQuestionIndex = quiz.length - 1;
+  const currentQuestionIndex = state.currentQuestionIndex;
+
+  const decodedQuestion = decodeQuestion(quiz[currentQuestionIndex].question);
+
+  const handleAnswer = (i) => {
+    setCurrentQuestionIdx(state, dispatch, state.userAnswers.length + 1);
+    setUserAnswers(state, dispatch, i);
+
+    if (currentQuestionIndex === maxQuestionIndex) {
+      navigate("/result");
+      setIsStarted(false);
+    }
   };
 
-  const handleAnswer = () => {};
-
-  if (!isStarted) return <Initial handleStart={handleStart} />;
+  if (!isStarted) return <Navigate to="/initial" />;
 
   return (
     <Container style={{ maxWidth: "60dvw" }}>
-      <TimeLeft>10:00 left</TimeLeft>
-      <TotalAnswered>10/10</TotalAnswered>
-      <Question>In computing, what does MIDI stand for?</Question>
+      <TimeLeft>{getReadableTimeFormat(seconds)}</TimeLeft>
+      <TotalAnswered>{user.userAnswers.length + 1}/10</TotalAnswered>
+      <Question>{decodedQuestion}</Question>
       <AnswersContainer>
-        <Answer>Musical Instrument Digital Interface</Answer>
-        <Answer>Musical Interface of Digital Instruments</Answer>
-        <Answer>
-          Modular Interfaaaaaaa aaaaaaaaaa aaaaaaaaaaaaaa aaaaaaaaaaaaceaa
-        </Answer>
-        <Answer>Musical Instrument Data Interface</Answer>
+        {quiz[currentQuestionIndex].all_answers.map((item, i) => {
+          return (
+            <Answer onClick={() => handleAnswer(i)} key={i}>
+              {item}
+            </Answer>
+          );
+        })}
       </AnswersContainer>
     </Container>
   );

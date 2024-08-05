@@ -5,7 +5,9 @@ const QuizContext = createContext(null);
 
 export const QuizContextProvider = ({ children }) => {
   const [quiz, dispatchQuiz] = useReducer(quizReducer, {
-    quiz: null,
+    username: null,
+    userAnswers: [],
+    currentQuestionIndex: 0,
   });
 
   return (
