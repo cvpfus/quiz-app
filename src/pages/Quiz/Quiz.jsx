@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { useLocalStorage } from "@/hooks/useLocalStorage.js";
 import QuizContext from "@/contexts/QuizContext.jsx";
 import {
-  clearUserAnswers,
   setCurrentQuestionIdx,
   setUserAnswers,
 } from "@/reducers/quizReducer.js";
@@ -62,7 +61,7 @@ const decodeQuestion = (text) => {
     .body.textContent;
 };
 
-const Quiz = ({ isStarted, setIsStarted }) => {
+const Quiz = ({ isStarted }) => {
   const quiz = useLocalStorage("quiz");
   const user = useLocalStorage("user");
   const timeLeft = useLocalStorage("timeLeft");
@@ -83,7 +82,6 @@ const Quiz = ({ isStarted, setIsStarted }) => {
       return () => clearInterval(timerId);
     } else {
       window.localStorage.removeItem("timeLeft");
-      clearUserAnswers(state, dispatch);
     }
   }, [seconds]);
 
@@ -99,15 +97,27 @@ const Quiz = ({ isStarted, setIsStarted }) => {
   const decodedQuestion = decodeQuestion(quiz[currentQuestionIndex].question);
 
   const handleAnswer = (e, i) => {
+    const allButtons = Array.from(e.target.parentNode.children);
+    allButtons.forEach((button) => (button.disabled = true));
+
+    const siblingButtons = allButtons.filter((button) => button !== e.target);
+    siblingButtons.forEach((button) => {
+      if (button.style.backgroundColor !== "green")
+        button.style.backgroundColor = "var(--secondary)";
+    });
+
     if (quiz[currentQuestionIndex].answer_index !== i)
       e.target.style.backgroundColor = "red";
+
     setCorrectAnswerIndex(quiz[currentQuestionIndex].answer_index);
+
     setTimeout(() => {
       e.target.style.backgroundColor = "var(--secondary)";
       setCurrentQuestionIdx(state, dispatch, state.userAnswers.length + 1);
       setUserAnswers(state, dispatch, i);
       setCorrectAnswerIndex(null);
-    }, 2000);
+      allButtons.forEach((button) => (button.disabled = false));
+    }, 3000);
   };
 
   if (!isStarted) return <Navigate to="/initial" />;

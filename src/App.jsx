@@ -21,7 +21,9 @@ const App = () => {
   const timeLeft = useLocalStorage("timeLeft");
   const [difficulty, setDifficulty] = useState("easy");
 
-  const quizQueryResult = useQuizQuery(!quiz, difficulty);
+  const quizQueryResult = useQuizQuery(isStarted && !quiz, difficulty);
+
+  console.log("is started", isStarted);
 
   const handleStart = () => {
     setIsStarted(true);
@@ -98,10 +100,7 @@ const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
-      <Route
-        path="/quiz"
-        element={<Quiz isStarted={isStarted} setIsStarted={setIsStarted} />}
-      />
+      <Route path="/quiz" element={<Quiz isStarted={isStarted} />} />
       <Route
         path="/initial"
         element={
@@ -112,7 +111,7 @@ const App = () => {
           />
         }
       />
-      <Route path="/result" element={<Result />} />
+      <Route path="/result" element={<Result setIsStarted={setIsStarted} />} />
     </Routes>
   );
 };

@@ -1,6 +1,11 @@
 import Container from "@/components/Container.jsx";
 import { useLocalStorage } from "@/hooks/useLocalStorage.js";
 import styled from "styled-components";
+import Button from "@/components/Button.jsx";
+import { useNavigate } from "react-router-dom";
+import { clearUserAnswers } from "@/reducers/quizReducer.js";
+import { useContext } from "react";
+import QuizContext from "@/contexts/QuizContext.jsx";
 
 const Table = styled.table`
   margin-top: 24px;
@@ -12,9 +17,11 @@ const Table = styled.table`
   }
 `;
 
-const Result = () => {
+const Result = ({ setIsStarted }) => {
   const user = useLocalStorage("user");
   const quiz = useLocalStorage("quiz");
+  const [state, dispatch] = useContext(QuizContext);
+  const navigate = useNavigate();
 
   if (!user || !quiz) {
     return (
@@ -28,6 +35,20 @@ const Result = () => {
     if (quiz[i].answer_index === curr) return acc + 1;
     else return acc;
   }, 0);
+
+  const handleYesButton = () => {
+    setIsStarted(false);
+    navigate("/initial");
+  };
+
+  const handleNoButton = () => {
+    setIsStarted(false);
+    clearUserAnswers(state, dispatch);
+    window.localStorage.removeItem("quiz");
+    window.localStorage.removeItem("user");
+    window.localStorage.removeItem("timeLeft");
+    navigate("/");
+  };
 
   return (
     <Container>
@@ -50,7 +71,18 @@ const Result = () => {
         </tbody>
       </Table>
 
-      <h3 style={{ marginTop: "24px" }}>Start new Quiz?</h3>
+      <h3 style={{ marginTop: "24px", marginBottom: "12px" }}>
+        Start new Quiz?
+      </h3>
+      <div style={{ display: "flex", gap: "12px" }}>
+        <Button onClick={handleYesButton}>Yes</Button>
+        <Button
+          style={{ backgroundColor: "var(--secondary)", color: "white" }}
+          onClick={handleNoButton}
+        >
+          No
+        </Button>
+      </div>
     </Container>
   );
 };

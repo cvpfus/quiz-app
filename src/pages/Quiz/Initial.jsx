@@ -3,9 +3,11 @@ import Button from "@/components/Button.jsx";
 import { useNavigate } from "react-router-dom";
 import { DIFFICULTIES } from "@/constants/index.js";
 import { useState } from "react";
+import { useLocalStorage } from "@/hooks/useLocalStorage.js";
 
 const Initial = ({ handleStart, isStarted, setDifficulty }) => {
   const navigate = useNavigate();
+  const user = useLocalStorage("user");
   const [difficultyIndex, setDifficultyIndex] = useState(null);
   const handleResume = () => {
     navigate("/quiz");
@@ -34,7 +36,8 @@ const Initial = ({ handleStart, isStarted, setDifficulty }) => {
 
   return (
     <Container style={{ justifyContent: "start", paddingTop: "48px" }}>
-      <h3 style={{ marginBottom: "24px" }}>About this Quiz</h3>
+      <h2 style={{ marginBottom: "24px" }}>Hello, {user.username}!</h2>
+      <h3 style={{ marginBottom: "12px" }}>About this Quiz</h3>
       <div>
         <div>1. Time limit is 2 minutes.</div>
         <div>2. This quiz is a multiple choice quiz.</div>
@@ -55,19 +58,9 @@ const Initial = ({ handleStart, isStarted, setDifficulty }) => {
             </Button>
           );
         })}
-
-        {/*<Button style={{ backgroundColor: "white", border: "2px solid black" }}>*/}
-        {/*  Easy*/}
-        {/*</Button>*/}
-        {/*<Button style={{ backgroundColor: "white", border: "2px solid black" }}>*/}
-        {/*  Easy*/}
-        {/*</Button>*/}
-        {/*<Button style={{ backgroundColor: "white", border: "2px solid black" }}>*/}
-        {/*  Easy*/}
-        {/*</Button>*/}
       </div>
 
-      <Button style={{ marginTop: "24px" }} onClick={handleStart}>
+      <Button style={{ marginTop: "12px" }} onClick={handleStart}>
         Start
       </Button>
     </Container>
