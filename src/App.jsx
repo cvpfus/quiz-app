@@ -11,6 +11,7 @@ import QuizContext from "@/contexts/QuizContext.jsx";
 import Initial from "@/pages/Quiz/Initial.jsx";
 import { useNavigate } from "react-router-dom";
 import Container from "@/components/Container.jsx";
+import NotFound from "@/pages/NotFound/index.js";
 
 const App = () => {
   const quiz = useLocalStorage("quiz");
@@ -112,6 +113,7 @@ const App = () => {
         }
       />
       <Route path="/result" element={<Result setIsStarted={setIsStarted} />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };
