@@ -38,6 +38,8 @@ const Result = ({ setIsStarted }) => {
 
   const handleYesButton = () => {
     setIsStarted(false);
+    window.localStorage.removeItem("quiz");
+    window.localStorage.removeItem("timeLeft");
     navigate("/initial");
   };
 

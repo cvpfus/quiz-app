@@ -24,8 +24,6 @@ const App = () => {
 
   const quizQueryResult = useQuizQuery(isStarted && !quiz, difficulty);
 
-  console.log("is started", isStarted);
-
   const handleStart = () => {
     setIsStarted(true);
     clearUserAnswers(state, dispatch);
