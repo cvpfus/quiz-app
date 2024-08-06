@@ -38,7 +38,7 @@ const Initial = ({ handleStart, isStarted, setDifficulty }) => {
     <Container style={{ justifyContent: "start", paddingTop: "48px" }}>
       <h2 style={{ marginBottom: "24px" }}>Hello, {user.username}!</h2>
       <h3 style={{ marginBottom: "12px" }}>About this Quiz</h3>
-      <div>
+      <div style={{ margin: "0 24px" }}>
         <div>1. Time limit is 2 minutes.</div>
         <div>2. This quiz is a multiple choice quiz.</div>
         <div>3. There are 10 random questions (not categorized).</div>
