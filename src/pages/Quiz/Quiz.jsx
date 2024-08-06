@@ -41,6 +41,7 @@ const AnswersContainer = styled.div`
   flex-direction: column;
   min-width: 60dvw;
   gap: 24px;
+  margin-bottom: 24px;
 `;
 
 const Answer = styled.button`
