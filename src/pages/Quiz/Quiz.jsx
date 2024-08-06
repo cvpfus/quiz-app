@@ -39,7 +39,7 @@ const Question = styled.h2`
 const AnswersContainer = styled.div`
   display: flex;
   flex-direction: column;
-  min-width: 60dvw;
+  min-width: 100%;
   gap: 24px;
   margin-bottom: 24px;
 `;
@@ -124,7 +124,7 @@ const Quiz = ({ isStarted }) => {
   if (!isStarted) return <Navigate to="/initial" />;
 
   return (
-    <Container style={{ maxWidth: "60dvw" }}>
+    <Container>
       <TimeLeft>{getReadableTimeFormat(seconds)}</TimeLeft>
       <TotalAnswered>{user.userAnswers.length + 1}/10</TotalAnswered>
       <Question>{decodedQuestion}</Question>
